@@ -1,38 +1,38 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 function App() {
+  const [deferredPrompt, setDeferredPrompt] = useState(null);
+  const [showInstallButton, setShowInstallButton] = useState(false);
+
   useEffect(() => {
-    const handleBeforeInstallPrompt = (e) => {
-      e.preventDefault(); // Default browser ka prompt rokna
-      console.log("📦 beforeinstallprompt fired");
-
-      // Delay se prompt() call karo
-      setTimeout(() => {
-        e.prompt(); // Yahi pop-up dikhata hai
-        e.userChoice.then((choiceResult) => {
-          if (choiceResult.outcome === "accepted") {
-            console.log("✅ User accepted the install prompt");
-          } else {
-            console.log("❌ User dismissed the install prompt");
-          }
-        });
-      }, 1000); // 1 second delay for smooth load
-    };
-
-    window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
-
-    return () => {
-      window.removeEventListener(
-        "beforeinstallprompt",
-        handleBeforeInstallPrompt
-      );
-    };
+    window.addEventListener("beforeinstallprompt", (e) => {
+      e.preventDefault(); // Default popup ko rokna
+      setDeferredPrompt(e); // Save event
+      setShowInstallButton(true); // Apna custom install button dikhao
+    });
   }, []);
+
+  const handleInstallClick = () => {
+    if (deferredPrompt) {
+      deferredPrompt.prompt();
+      deferredPrompt.userChoice.then((choiceResult) => {
+        if (choiceResult.outcome === "accepted") {
+          console.log("User accepted the install prompt");
+        } else {
+          console.log("User dismissed the install prompt");
+        }
+        setDeferredPrompt(null);
+        setShowInstallButton(false);
+      });
+    }
+  };
 
   return (
     <div>
-      <h1>🔥 PWA App</h1>
-      <p>Install popup will appear automatically when app is opened.</p>
+      <h1>My PWA App</h1>
+      {showInstallButton && (
+        <button onClick={handleInstallClick}>Install App</button>
+      )}
     </div>
   );
 }

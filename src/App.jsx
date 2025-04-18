@@ -1,25 +1,22 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 
 function App() {
-  const [deferredPrompt, setDeferredPrompt] = useState(null);
-
   useEffect(() => {
     const handleBeforeInstallPrompt = (e) => {
-      e.preventDefault(); // Default browser install prompt ko block karo
-      setDeferredPrompt(e); // Store the prompt
+      e.preventDefault(); // Default browser ka prompt rokna
+      console.log("📦 beforeinstallprompt fired");
 
-      // Automatically trigger the install popup
+      // Delay se prompt() call karo
       setTimeout(() => {
-        e.prompt();
+        e.prompt(); // Yahi pop-up dikhata hai
         e.userChoice.then((choiceResult) => {
           if (choiceResult.outcome === "accepted") {
             console.log("✅ User accepted the install prompt");
           } else {
             console.log("❌ User dismissed the install prompt");
           }
-          setDeferredPrompt(null);
         });
-      }, 1000); // Thoda delay dena (1 sec) for smoother UX
+      }, 1000); // 1 second delay for smooth load
     };
 
     window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
@@ -34,10 +31,8 @@ function App() {
 
   return (
     <div>
-      <h1>🚀 My PWA App</h1>
-      <p>
-        The install prompt will appear automatically on page load (if eligible).
-      </p>
+      <h1>🔥 PWA App</h1>
+      <p>Install popup will appear automatically when app is opened.</p>
     </div>
   );
 }
